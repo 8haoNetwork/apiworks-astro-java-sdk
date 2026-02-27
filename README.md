@@ -28,7 +28,7 @@ Java SDK for ApiWorks 星盘 API（默认网关 `https://cloud.apiworks.com/open
 
 ### 安装（Maven）
 
-如果已经发布到中央仓库，在你的 `pom.xml` 中添加：
+在你的 `pom.xml` 中添加：
 
 ```xml
 <dependency>
@@ -37,8 +37,6 @@ Java SDK for ApiWorks 星盘 API（默认网关 `https://cloud.apiworks.com/open
     <version>0.1.0</version>
 </dependency>
 ```
-
-如果尚未发布到中央仓库，可在本项目根目录执行 `mvn clean install` 进行本地安装，然后在业务项目中按上述方式引用。
 
 ### 快速开始（同步客户端）
 
