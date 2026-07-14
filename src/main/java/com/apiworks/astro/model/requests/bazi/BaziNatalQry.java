@@ -1,5 +1,6 @@
 package com.apiworks.astro.model.requests.bazi;
 
+import com.apiworks.astro.model.common.LangConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,6 +9,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BaziNatalQry {
+
+    /** 语言：zh-Hans | zh-Hant，默认 zh-Hans。 */
+    @JsonProperty("lang")
+    private String lang = LangConstants.DEFAULT_LANG;
 
     /** 出生时间。 */
     @JsonProperty("birth_dt")
@@ -37,12 +42,26 @@ public class BaziNatalQry {
     @JsonProperty("is_late_zi")
     private boolean isLateZi;
 
+    /** 命身宫月支起算：solar_term（默认）| zhongqi。 */
+    @JsonProperty("ming_shen_gong_month_rule")
+    private String mingShenGongMonthRule = "solar_term";
+
     public BaziNatalQry() {
+        this.lang = LangConstants.DEFAULT_LANG;
         this.tz = 8;
         this.longitude = 116.39;
         this.latitude = 39.91;
         this.isSolarTime = false;
         this.isLateZi = false;
+        this.mingShenGongMonthRule = "solar_term";
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public String getBirthDt() {
@@ -99,6 +118,14 @@ public class BaziNatalQry {
 
     public void setLateZi(boolean lateZi) {
         isLateZi = lateZi;
+    }
+
+    public String getMingShenGongMonthRule() {
+        return mingShenGongMonthRule;
+    }
+
+    public void setMingShenGongMonthRule(String mingShenGongMonthRule) {
+        this.mingShenGongMonthRule = mingShenGongMonthRule;
     }
 }
 

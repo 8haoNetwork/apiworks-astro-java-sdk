@@ -1,30 +1,22 @@
 ## apiworks-astro-java-sdk
 
-Java SDK for ApiWorks 星盘 API（默认网关 `https://cloud.apiworks.com/open/astro`）。用于简化在 Java 项目中调用星盘、八字、紫微、星宿、运势、AI 报告等接口的集成工作。
+Java SDK for ApiWorks 星盘 API（[www.apiworks.com](https://www.apiworks.com)，默认网关 `https://cloud.apiworks.com/open/astro`）。支持星盘、八字、紫微、奇门遁甲、大六壬、星宿、运势、AI 报告等能力（SDK **v1.1.0**）。
 
 ### 功能概览
 
 - **客户端**: 同步 `AstroCloudClient`、异步 `AsyncAstroCloudClient`
-- **请求模型**: 与后端 DTO 对齐的简单 Java Bean（位于 `com.apiworks.astro.model.requests.*`）
-  - 星盘：`com.apiworks.astro.model.requests.chart.*`
-  - 运势：`com.apiworks.astro.model.requests.scope.*`
-  - 八字：`com.apiworks.astro.model.requests.bazi.*`
-  - 紫微：`com.apiworks.astro.model.requests.ziwei.*`
-  - 星宿：`com.apiworks.astro.model.requests.naks.*`
-  - 报告：`com.apiworks.astro.model.requests.report.*`
-- **响应模型**: 通用 `ApiResp<T>`，以及若干常用 VO（位于 `com.apiworks.astro.model.responses.*`）
+- **星盘 (Chart)**：本命盘、天象盘、行运盘、比较盘、组合盘、三限/次限/法达/日弧等
+- **星座 (Sign)**：我的星座、星座列表、星座配对
+- **运势 (Scope)**：日/周/月/年运势
+- **星象事件 (Event)**：行运星象事件
+- **紫微斗数 (Ziwei)**：本命盘、排盘、含解读的排盘
+- **星宿 (Naks)**：27 星宿关系
+- **八字 (Bazi)**：命盘、流盘、合盘、总结
+- **三式 (Sanshi)**：奇门遁甲、大六壬 / 金口诀
+- **报告 (Report)**：桃花、周运、年运、合盘、财运等 AI 报告
+- **多语言**：请求体 / 查询参数 `lang`，支持 `zh-Hans`（默认）、`zh-Hant`、`en`（部分接口）
 
-目前实现了一组与后端服务对齐的核心接口：
-
-- 星盘：`chartNatal`、`chartTransit` 等（`/chart/*`）
-- 星座：`mySign`、`signsList`、`signInfo`、`signCompat`
-- 运势：`scopeDay`、`scopeWeek`、`scopeMonth`、`scopeYear`
-- 八字：`baziNatal`、`baziFlow`、`baziMatch`、`baziSummary`
-- 紫微：`ziweiNatal`、`ziweiChart`、`ziweiDetail`
-- 星宿：`naksRelations`
-- 报告：`reportRomantic`、`reportWeeklyScope`、`reportYearlyScope`、`reportTogether`、`reportWealth`、`reportGet`、`reportGetHtml`
-
-后续可根据后端 API 文档持续补充。
+请求模型位于 `com.apiworks.astro.model.requests.*`，响应模型位于 `com.apiworks.astro.model.responses.*`。
 
 ### 安装（Maven）
 
@@ -32,9 +24,9 @@ Java SDK for ApiWorks 星盘 API（默认网关 `https://cloud.apiworks.com/open
 
 ```xml
 <dependency>
-    <groupId>com.apiworks</groupId>
+    <groupId>com.apiworks.astro</groupId>
     <artifactId>apiworks-astro-java-sdk</artifactId>
-    <version>0.1.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -57,6 +49,7 @@ public class Demo {
         SinglePointQry qry = new SinglePointQry(
                 new TimeAndLocation("1990-08-14 12:00:00", 8, 116.4074, 39.9042)
         );
+        qry.setLang("zh-Hans"); // 可选：zh-Hans | zh-Hant | en
 
         ApiResp<AstroDataVo> resp = client.chartNatal(qry);
         if (resp.getCode() == 0 && resp.getData() != null) {
@@ -67,6 +60,44 @@ public class Demo {
     }
 }
 ```
+
+### 奇门遁甲 / 大六壬
+
+```java
+import com.apiworks.astro.AstroCloudClient;
+import com.apiworks.astro.model.requests.sanshi.LiurenQry;
+import com.apiworks.astro.model.requests.sanshi.QimenQry;
+import com.apiworks.astro.model.responses.sanshi.LiurenResultVo;
+import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
+
+AstroCloudClient client = new AstroCloudClient("your-app-id", "your-app-key");
+
+QimenQry qm = new QimenQry();
+qm.setQryDt("1999-10-17 21:00:00");
+qm.setTz(8);
+qm.setType("shijia");
+qm.setPaiMethod("zhuanpan");
+qm.setJuMethod("chaibu");
+qm.setLang("zh-Hans");
+var qmResp = client.qimen(qm);
+if (qmResp.getCode() == 0 && qmResp.getData() != null) {
+    QimenResultVo data = qmResp.getData();
+    System.out.println(data.getJuDisplay());
+}
+
+LiurenQry lr = new LiurenQry();
+lr.setQryDt("1999-10-17 21:00:00");
+lr.setTz(8);
+lr.setType("daliuren");
+lr.setGuiMethod("tian");
+var lrResp = client.liuren(lr);
+if (lrResp.getCode() == 0 && lrResp.getData() != null) {
+    LiurenResultVo data = lrResp.getData();
+    System.out.println(data.getYueJiangName());
+}
+```
+
+> 不同产品线接口可能对应不同 App ID / App Key。需要多组凭证时，为每组各建一个 Client。
 
 ### 快速开始（异步客户端）
 
@@ -152,7 +183,7 @@ mvn clean install
 export APIWORKS_APP_ID=你的AppId
 export APIWORKS_APP_KEY=你的AppKey
 
-# 同步示例（本命盘、行运、八字、日运势、紫微、星宿、桃花报告）
+# 同步示例（本命盘、行运、八字、日运势、紫微、星宿、奇门/六壬、桃花报告）
 mvn exec:java@run-sync-example
 
 # 异步示例（本命盘、八字→运势链式、紫微+桃花报告并行）
@@ -179,4 +210,3 @@ mvn test
 ### License
 
 MIT
-

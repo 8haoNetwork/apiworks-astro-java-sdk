@@ -7,6 +7,8 @@ import com.apiworks.astro.model.requests.bazi.BaziNatalQry;
 import com.apiworks.astro.model.requests.naks.NaksBirthInfo;
 import com.apiworks.astro.model.requests.naks.NaksQry;
 import com.apiworks.astro.model.requests.report.RomanticCreateQry;
+import com.apiworks.astro.model.requests.sanshi.LiurenQry;
+import com.apiworks.astro.model.requests.sanshi.QimenQry;
 import com.apiworks.astro.model.requests.scope.ScopeQryReq;
 import com.apiworks.astro.model.requests.ziwei.ZiweiNatalQry;
 import com.apiworks.astro.model.requests.chart.DoublePointQry;
@@ -15,6 +17,8 @@ import com.apiworks.astro.model.responses.astro.AstroDataVo;
 import com.apiworks.astro.model.responses.bazi.BaziNatalVO;
 import com.apiworks.astro.model.responses.naks.NaksVo;
 import com.apiworks.astro.model.responses.report.AstroReportVo;
+import com.apiworks.astro.model.responses.sanshi.LiurenResultVo;
+import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
 import com.apiworks.astro.model.responses.scope.ScopeRespVo;
 import com.apiworks.astro.model.responses.ziwei.ZiweiNatalVo;
 
@@ -55,7 +59,11 @@ public class SyncExample {
             // 6. 星宿关系
             exampleNaksRelations(client);
 
-            // 7. 桃花报告（创建任务，拿到 serialNo 后可 reportGet / reportGetHtml 拉取）
+            // 7. 奇门遁甲 / 大六壬
+            exampleQimen(client);
+            exampleLiuren(client);
+
+            // 8. 桃花报告（创建任务，拿到 serialNo 后可 reportGet / reportGetHtml 拉取）
             exampleReportRomantic(client);
         }
     }
@@ -173,6 +181,49 @@ public class SyncExample {
             }
         } catch (Exception e) {
             System.err.println("naksRelations error: " + e.getMessage());
+        }
+    }
+
+    static void exampleQimen(AstroCloudClient client) {
+        System.out.println("--- 奇门遁甲 ---");
+        QimenQry qry = new QimenQry();
+        qry.setQryDt("1999-10-17 21:00:00");
+        qry.setTz(8);
+        qry.setType("shijia");
+        qry.setPaiMethod("zhuanpan");
+        qry.setJuMethod("chaibu");
+        try {
+            ApiResp<QimenResultVo> resp = client.qimen(qry);
+            if (resp.getCode() == 0 && resp.getData() != null) {
+                QimenResultVo data = resp.getData();
+                System.out.println("局: " + data.getJuDisplay()
+                        + ", 九宫数: " + (data.getJiuGong() != null ? data.getJiuGong().size() : 0));
+            } else {
+                System.out.println("code=" + resp.getCode() + ", msg=" + resp.getMsg());
+            }
+        } catch (Exception e) {
+            System.err.println("qimen error: " + e.getMessage());
+        }
+    }
+
+    static void exampleLiuren(AstroCloudClient client) {
+        System.out.println("--- 大六壬 ---");
+        LiurenQry qry = new LiurenQry();
+        qry.setQryDt("1999-10-17 21:00:00");
+        qry.setTz(8);
+        qry.setType("daliuren");
+        qry.setGuiMethod("tian");
+        try {
+            ApiResp<LiurenResultVo> resp = client.liuren(qry);
+            if (resp.getCode() == 0 && resp.getData() != null) {
+                LiurenResultVo data = resp.getData();
+                System.out.println("月将: " + data.getYueJiangName()
+                        + ", 四课数: " + (data.getSiKe() != null ? data.getSiKe().size() : 0));
+            } else {
+                System.out.println("code=" + resp.getCode() + ", msg=" + resp.getMsg());
+            }
+        } catch (Exception e) {
+            System.err.println("liuren error: " + e.getMessage());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.apiworks.astro.model.requests.scope;
 
+import com.apiworks.astro.model.common.LangConstants;
 import com.apiworks.astro.model.common.TimeAndLocation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,6 +10,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ScopeQryReq {
+
+    /** 语言：zh-Hans | zh-Hant | en，默认 zh-Hans。 */
+    @JsonProperty("lang")
+    private String lang = LangConstants.DEFAULT_LANG;
 
     /** 出生时间和地点。 */
     @JsonProperty("birth_point")
@@ -24,6 +29,15 @@ public class ScopeQryReq {
     public ScopeQryReq(TimeAndLocation birthPoint, TimeAndLocation transitPoint) {
         this.birthPoint = birthPoint;
         this.transitPoint = transitPoint;
+        this.lang = LangConstants.DEFAULT_LANG;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public TimeAndLocation getBirthPoint() {

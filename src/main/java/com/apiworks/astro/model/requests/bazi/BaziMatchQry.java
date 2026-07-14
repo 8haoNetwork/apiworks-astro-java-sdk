@@ -17,6 +17,10 @@ public class BaziMatchQry extends BaziNatalQry {
     @JsonProperty("other_tz")
     private int otherTz = 8;
 
+    /** 对方是否自动夏令时（中国）。 */
+    @JsonProperty("other_dst_auto")
+    private boolean otherDstAuto = true;
+
     /** 对方性别：male | female。 */
     @JsonProperty("other_gender")
     private String otherGender;
@@ -43,6 +47,14 @@ public class BaziMatchQry extends BaziNatalQry {
 
     public void setOtherTz(int otherTz) {
         this.otherTz = otherTz;
+    }
+
+    public boolean isOtherDstAuto() {
+        return otherDstAuto;
+    }
+
+    public void setOtherDstAuto(boolean otherDstAuto) {
+        this.otherDstAuto = otherDstAuto;
     }
 
     public String getOtherGender() {

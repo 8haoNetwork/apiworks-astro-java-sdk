@@ -1,5 +1,6 @@
 package com.apiworks.astro.model.requests.ziwei;
 
+import com.apiworks.astro.model.common.LangConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,6 +9,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZiweiNatalQry {
+
+    /** 语言：zh-Hans | zh-Hant，默认 zh-Hans。 */
+    @JsonProperty("lang")
+    private String lang = LangConstants.DEFAULT_LANG;
 
     /** 出生时间，格式 yyyy-MM-dd HH:mm:ss。 */
     @JsonProperty("birth_dt")
@@ -42,12 +47,21 @@ public class ZiweiNatalQry {
     private String leapBoundary;
 
     public ZiweiNatalQry() {
+        this.lang = LangConstants.DEFAULT_LANG;
         this.tz = 8;
         this.longitude = 116.39;
         this.latitude = 39.91;
         this.isSolarTime = false;
         this.isLateZi = false;
         this.leapBoundary = "mid_month";
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public String getBirthDt() {

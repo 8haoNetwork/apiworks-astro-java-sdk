@@ -10,7 +10,10 @@ import com.apiworks.astro.model.requests.report.TogetherCreateQry;
 import com.apiworks.astro.model.requests.report.WealthCreateQry;
 import com.apiworks.astro.model.requests.report.WeeklyScopeCreateQry;
 import com.apiworks.astro.model.requests.report.YearlyScopeCreateQry;
+import com.apiworks.astro.model.requests.sanshi.LiurenQry;
+import com.apiworks.astro.model.requests.sanshi.QimenQry;
 import com.apiworks.astro.model.requests.scope.ScopeQryReq;
+import com.apiworks.astro.model.requests.sign.SignQry;
 import com.apiworks.astro.model.requests.ziwei.ZiweiNatalQry;
 import com.apiworks.astro.model.requests.ziwei.ZiweiQry;
 import com.apiworks.astro.model.requests.chart.DoublePointQry;
@@ -25,6 +28,8 @@ import com.apiworks.astro.model.responses.bazi.BaziSummaryVO;
 import com.apiworks.astro.model.responses.event.AstroEventVo;
 import com.apiworks.astro.model.responses.naks.NaksVo;
 import com.apiworks.astro.model.responses.report.AstroReportVo;
+import com.apiworks.astro.model.responses.sanshi.LiurenResultVo;
+import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
 import com.apiworks.astro.model.responses.scope.ScopeRespVo;
 import com.apiworks.astro.model.responses.sign.MySignRespVo;
 import com.apiworks.astro.model.responses.sign.SignCompatVo;
@@ -93,6 +98,14 @@ public class AsyncAstroCloudClient implements AutoCloseable {
     private String trimTrailingSlash(String url) {
         if (url == null) return DEFAULT_BASE_URL;
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    private static String withLangQuery(String path, String lang) {
+        if (lang == null || lang.isEmpty()) {
+            return path;
+        }
+        String separator = path.contains("?") ? "&" : "?";
+        return path + separator + "lang=" + lang;
     }
 
     /**
@@ -314,20 +327,32 @@ public class AsyncAstroCloudClient implements AutoCloseable {
     }
 
     // ----- Sign -----
-    public CompletableFuture<ApiResp<MySignRespVo>> mySign(String uid) {
-        return executeJsonAsync("POST", "/mySign/" + uid, null, new TypeReference<ApiResp<MySignRespVo>>() {});
+    public CompletableFuture<ApiResp<MySignRespVo>> mySign(String uid, SignQry qry) {
+        return executeJsonAsync("POST", "/mySign/" + uid, qry, new TypeReference<ApiResp<MySignRespVo>>() {});
     }
 
     public CompletableFuture<ApiResp<List<SignVo>>> signsList() {
-        return executeJsonAsync("GET", "/signs", null, new TypeReference<ApiResp<List<SignVo>>>() {});
+        return signsList(null);
+    }
+
+    public CompletableFuture<ApiResp<List<SignVo>>> signsList(String lang) {
+        return executeJsonAsync("GET", withLangQuery("/signs", lang), null, new TypeReference<ApiResp<List<SignVo>>>() {});
     }
 
     public CompletableFuture<ApiResp<SignVo>> signInfo(String signId) {
-        return executeJsonAsync("GET", "/signs/" + signId, null, new TypeReference<ApiResp<SignVo>>() {});
+        return signInfo(signId, null);
+    }
+
+    public CompletableFuture<ApiResp<SignVo>> signInfo(String signId, String lang) {
+        return executeJsonAsync("GET", withLangQuery("/signs/" + signId, lang), null, new TypeReference<ApiResp<SignVo>>() {});
     }
 
     public CompletableFuture<ApiResp<Map<String, List<SignCompatVo>>>> signCompat(String signId) {
-        return executeJsonAsync("GET", "/signs/" + signId + "/compat", null,
+        return signCompat(signId, null);
+    }
+
+    public CompletableFuture<ApiResp<Map<String, List<SignCompatVo>>>> signCompat(String signId, String lang) {
+        return executeJsonAsync("GET", withLangQuery("/signs/" + signId + "/compat", lang), null,
                 new TypeReference<ApiResp<Map<String, List<SignCompatVo>>>>() {});
     }
 
@@ -364,6 +389,15 @@ public class AsyncAstroCloudClient implements AutoCloseable {
     // ----- Naks -----
     public CompletableFuture<ApiResp<NaksVo>> naksRelations(NaksQry qry) {
         return executeJsonAsync("POST", "/naks/relations", qry, new TypeReference<ApiResp<NaksVo>>() {});
+    }
+
+    // ----- Sanshi: Qimen / Liuren -----
+    public CompletableFuture<ApiResp<QimenResultVo>> qimen(QimenQry qry) {
+        return executeJsonAsync("POST", "/qimen", qry, new TypeReference<ApiResp<QimenResultVo>>() {});
+    }
+
+    public CompletableFuture<ApiResp<LiurenResultVo>> liuren(LiurenQry qry) {
+        return executeJsonAsync("POST", "/liuren", qry, new TypeReference<ApiResp<LiurenResultVo>>() {});
     }
 
     // ----- Report -----

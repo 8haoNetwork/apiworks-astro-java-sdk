@@ -18,6 +18,10 @@ class AttributePlanet {
     @JsonProperty("planet_cn")
     private String planetCn;
 
+    /** 行星本地化名称（随 lang）。 */
+    @JsonProperty("planet_name")
+    private String planetName = "";
+
     /** 行星黄道经度。 */
     @JsonProperty("longitude")
     private double longitude;
@@ -57,6 +61,10 @@ class AttributePlanet {
     /** 星座中文名。 */
     @JsonProperty("sign_cn")
     private String signCn;
+
+    /** 星座本地化名称（随 lang）。 */
+    @JsonProperty("sign_name")
+    private String signName = "";
 
     /** 星座字体（前端展示用字形）。 */
     @JsonProperty("sign_font")

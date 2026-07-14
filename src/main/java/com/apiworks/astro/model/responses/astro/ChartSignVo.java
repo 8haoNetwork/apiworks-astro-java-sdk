@@ -20,6 +20,10 @@ class ChartSignVo {
     @JsonProperty("sign_cn")
     private String signCn;
 
+    /** 星座本地化名称（随 lang）。 */
+    @JsonProperty("sign_name")
+    private String signName = "";
+
     /** 星座字体。 */
     @JsonProperty("sign_font")
     private String signFont;

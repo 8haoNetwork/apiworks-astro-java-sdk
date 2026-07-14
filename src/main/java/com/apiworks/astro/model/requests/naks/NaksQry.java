@@ -1,5 +1,6 @@
 package com.apiworks.astro.model.requests.naks;
 
+import com.apiworks.astro.model.common.LangConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,6 +12,10 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NaksQry {
 
+    /** 语言：zh-Hans | zh-Hant，默认 zh-Hans。 */
+    @JsonProperty("lang")
+    private String lang = LangConstants.DEFAULT_LANG;
+
     /** 用户本人的出生信息。 */
     @JsonProperty("birth_info")
     private NaksBirthInfo birthInfo;
@@ -18,10 +23,6 @@ public class NaksQry {
     /** 其他人的出生信息列表。 */
     @JsonProperty("others_birth_info")
     private List<NaksBirthInfo> othersBirthInfo;
-
-    /** 目标日期时间。 */
-    @JsonProperty("target_dt")
-    private String targetDt;
 
     /** 是否使用真太阳时。 */
     @JsonProperty("is_solar_time")
@@ -51,12 +52,12 @@ public class NaksQry {
         this.othersBirthInfo = othersBirthInfo;
     }
 
-    public String getTargetDt() {
-        return targetDt;
+    public String getLang() {
+        return lang;
     }
 
-    public void setTargetDt(String targetDt) {
-        this.targetDt = targetDt;
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public boolean isSolarTime() {

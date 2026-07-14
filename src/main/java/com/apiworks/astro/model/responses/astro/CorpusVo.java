@@ -26,6 +26,14 @@ public class CorpusVo {
     @JsonProperty("to_en")
     private String toEn;
 
+    /** 主体对象本地化名称（随 lang）。 */
+    @JsonProperty("from_name")
+    private String fromName = "";
+
+    /** 客体对象本地化名称（随 lang）。 */
+    @JsonProperty("to_name")
+    private String toName = "";
+
     /** 语料类型。 */
     @JsonProperty("type")
     private String type;

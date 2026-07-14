@@ -1,5 +1,6 @@
 package com.apiworks.astro.model.requests.chart;
 
+import com.apiworks.astro.model.common.LangConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -9,6 +10,10 @@ import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChartBaseQry {
+
+    /** 语言：zh-Hans（简体，默认）| zh-Hant（繁体）| en。 */
+    @JsonProperty("lang")
+    private String lang = LangConstants.DEFAULT_LANG;
 
     /** 行星代码列表（body codes）。 */
     @JsonProperty("bodies")
@@ -51,6 +56,7 @@ public class ChartBaseQry {
     private Map<String, Double> aspectOrbs;
 
     public ChartBaseQry() {
+        this.lang = LangConstants.DEFAULT_LANG;
         this.bodies = List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "m");
         this.asteroids = List.of();
         this.virtualBodies = List.of("11");
@@ -60,6 +66,14 @@ public class ChartBaseQry {
         this.includeCorpus = Boolean.TRUE;
         this.planetOrbs = new HashMap<>();
         this.aspectOrbs = new HashMap<>();
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public List<String> getBodies() {

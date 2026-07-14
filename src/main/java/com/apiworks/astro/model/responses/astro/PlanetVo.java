@@ -24,6 +24,10 @@ class PlanetVo {
     @JsonProperty("planet_cn")
     private String planetCn;
 
+    /** 行星本地化名称（随 lang）。 */
+    @JsonProperty("planet_name")
+    private String planetName = "";
+
     /** 行星黄道经度。 */
     @JsonProperty("longitude")
     private double longitude;

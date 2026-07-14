@@ -10,7 +10,10 @@ import com.apiworks.astro.model.requests.report.TogetherCreateQry;
 import com.apiworks.astro.model.requests.report.WealthCreateQry;
 import com.apiworks.astro.model.requests.report.WeeklyScopeCreateQry;
 import com.apiworks.astro.model.requests.report.YearlyScopeCreateQry;
+import com.apiworks.astro.model.requests.sanshi.LiurenQry;
+import com.apiworks.astro.model.requests.sanshi.QimenQry;
 import com.apiworks.astro.model.requests.scope.ScopeQryReq;
+import com.apiworks.astro.model.requests.sign.SignQry;
 import com.apiworks.astro.model.requests.ziwei.ZiweiNatalQry;
 import com.apiworks.astro.model.requests.ziwei.ZiweiQry;
 import com.apiworks.astro.model.requests.chart.DoublePointQry;
@@ -25,6 +28,8 @@ import com.apiworks.astro.model.responses.bazi.BaziSummaryVO;
 import com.apiworks.astro.model.responses.event.AstroEventVo;
 import com.apiworks.astro.model.responses.naks.NaksVo;
 import com.apiworks.astro.model.responses.report.AstroReportVo;
+import com.apiworks.astro.model.responses.sanshi.LiurenResultVo;
+import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
 import com.apiworks.astro.model.responses.scope.ScopeRespVo;
 import com.apiworks.astro.model.responses.sign.MySignRespVo;
 import com.apiworks.astro.model.responses.sign.SignCompatVo;
@@ -63,7 +68,9 @@ import java.util.concurrent.TimeUnit;
  *     <li>bazi：八字命盘/流盘/合盘/总结 {@code /bazi/natal|flow|match|summary}</li>
  *     <li>ziwei：紫微命盘/运限/解读 {@code /ziwei/natal|chart|detail}</li>
  *     <li>naks：星宿关系 {@code /naks/relations}</li>
+ *     <li>sanshi：奇门遁甲 {@code /qimen}、大六壬/金口诀 {@code /liuren}</li>
  *     <li>report：桃花/周运/年运/合盘/财运报告 {@code /report/*}</li>
+ *     <li>多语言：请求体或查询参数 {@code lang}（{@code zh-Hans}/{@code zh-Hant}/{@code en}）</li>
  * </ul>
  * 需要的请求/响应模型可在 {@code com.apiworks.astro.model.requests.*}、
  * {@code com.apiworks.astro.model.responses.*} 包中按需扩展。
@@ -103,6 +110,14 @@ public class AstroCloudClient implements AutoCloseable {
             return DEFAULT_BASE_URL;
         }
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    private static String withLangQuery(String path, String lang) {
+        if (lang == null || lang.isEmpty()) {
+            return path;
+        }
+        String separator = path.contains("?") ? "&" : "?";
+        return path + separator + "lang=" + lang;
     }
 
     /**
@@ -516,13 +531,13 @@ public class AstroCloudClient implements AutoCloseable {
     // ----- Sign -----
 
     /**
-     * POST {@code /mySign/{uid}} - 用户星座（包含简要运势）。
+     * POST {@code /mySign/{uid}} - 用户星座（包含简要运势，需传出生点 body）。
      */
-    public ApiResp<MySignRespVo> mySign(String uid) throws IOException {
+    public ApiResp<MySignRespVo> mySign(String uid, SignQry qry) throws IOException {
         return executeJson(
                 "POST",
                 "/mySign/" + uid,
-                null,
+                qry,
                 new TypeReference<ApiResp<MySignRespVo>>() {
                 }
         );
@@ -532,9 +547,18 @@ public class AstroCloudClient implements AutoCloseable {
      * GET {@code /signs} - 星座列表。
      */
     public ApiResp<java.util.List<SignVo>> signsList() throws IOException {
+        return signsList(null);
+    }
+
+    /**
+     * GET {@code /signs} - 星座列表。
+     *
+     * @param lang 可选语言：zh-Hans | zh-Hant | en
+     */
+    public ApiResp<java.util.List<SignVo>> signsList(String lang) throws IOException {
         return executeJson(
                 "GET",
-                "/signs",
+                withLangQuery("/signs", lang),
                 null,
                 new TypeReference<ApiResp<java.util.List<SignVo>>>() {
                 }
@@ -545,9 +569,18 @@ public class AstroCloudClient implements AutoCloseable {
      * GET {@code /signs/{signId}} - 星座详情。
      */
     public ApiResp<SignVo> signInfo(String signId) throws IOException {
+        return signInfo(signId, null);
+    }
+
+    /**
+     * GET {@code /signs/{signId}} - 星座详情。
+     *
+     * @param lang 可选语言：zh-Hans | zh-Hant | en
+     */
+    public ApiResp<SignVo> signInfo(String signId, String lang) throws IOException {
         return executeJson(
                 "GET",
-                "/signs/" + signId,
+                withLangQuery("/signs/" + signId, lang),
                 null,
                 new TypeReference<ApiResp<SignVo>>() {
                 }
@@ -558,9 +591,18 @@ public class AstroCloudClient implements AutoCloseable {
      * GET {@code /signs/{signId}/compat} - 星座配对关系。
      */
     public ApiResp<java.util.Map<String, java.util.List<SignCompatVo>>> signCompat(String signId) throws IOException {
+        return signCompat(signId, null);
+    }
+
+    /**
+     * GET {@code /signs/{signId}/compat} - 星座配对关系。
+     *
+     * @param lang 可选语言：zh-Hans | zh-Hant | en
+     */
+    public ApiResp<java.util.Map<String, java.util.List<SignCompatVo>>> signCompat(String signId, String lang) throws IOException {
         return executeJson(
                 "GET",
-                "/signs/" + signId + "/compat",
+                withLangQuery("/signs/" + signId + "/compat", lang),
                 null,
                 new TypeReference<ApiResp<java.util.Map<String, java.util.List<SignCompatVo>>>>() {
                 }
@@ -673,6 +715,34 @@ public class AstroCloudClient implements AutoCloseable {
                 "/naks/relations",
                 qry,
                 new TypeReference<ApiResp<NaksVo>>() {
+                }
+        );
+    }
+
+    // ----- Sanshi: Qimen / Liuren -----
+
+    /**
+     * POST {@code /qimen} - 奇门遁甲排盘。
+     */
+    public ApiResp<QimenResultVo> qimen(QimenQry qry) throws IOException {
+        return executeJson(
+                "POST",
+                "/qimen",
+                qry,
+                new TypeReference<ApiResp<QimenResultVo>>() {
+                }
+        );
+    }
+
+    /**
+     * POST {@code /liuren} - 大六壬 / 金口诀排盘。
+     */
+    public ApiResp<LiurenResultVo> liuren(LiurenQry qry) throws IOException {
+        return executeJson(
+                "POST",
+                "/liuren",
+                qry,
+                new TypeReference<ApiResp<LiurenResultVo>>() {
                 }
         );
     }

@@ -1,8 +1,13 @@
 package com.apiworks.astro;
 
 import com.apiworks.astro.model.common.ApiResp;
+import com.apiworks.astro.model.common.TimeAndLocation;
 import com.apiworks.astro.model.requests.chart.SinglePointQry;
+import com.apiworks.astro.model.requests.sanshi.QimenQry;
+import com.apiworks.astro.model.requests.sign.SignQry;
 import com.apiworks.astro.model.responses.astro.AstroDataVo;
+import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
+import com.apiworks.astro.model.responses.sign.MySignRespVo;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -89,5 +94,74 @@ class AstroCloudClientTest {
         assertEquals(0.2, resp.getExeTime(), 1e-9);
         assertNotNull(resp.getData());
         assertEquals("<svg />", resp.getData().getSvg());
+    }
+
+    @Test
+    void chartNatal_includesLangInBody() throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody("{\"code\":0,\"msg\":\"ok\",\"data\":{},\"exe_time\":0.1}")
+                .addHeader("Content-Type", "application/json"));
+
+        SinglePointQry qry = new SinglePointQry();
+        qry.setBirthDt("1999-10-17 21:00:00");
+        qry.setLang("en");
+
+        client.chartNatal(qry);
+
+        RecordedRequest request = server.takeRequest(2, TimeUnit.SECONDS);
+        assertNotNull(request);
+        String bodyStr = request.getBody().readUtf8();
+        assertTrue(bodyStr.contains("\"lang\""));
+        assertTrue(bodyStr.contains("en"));
+    }
+
+    @Test
+    void mySign_sendsBodyAndSignsList_passesLangQuery() throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody("{\"code\":0,\"msg\":\"ok\",\"data\":{},\"exe_time\":0.1}")
+                .addHeader("Content-Type", "application/json"));
+        server.enqueue(new MockResponse()
+                .setBody("{\"code\":0,\"msg\":\"ok\",\"data\":[],\"exe_time\":0.1}")
+                .addHeader("Content-Type", "application/json"));
+
+        SignQry signQry = new SignQry(new TimeAndLocation("1990-08-14 12:00:00", 8, 116.4, 39.9), "zh-Hant");
+        ApiResp<MySignRespVo> mySignResp = client.mySign("u1", signQry);
+        assertEquals(0, mySignResp.getCode());
+
+        RecordedRequest mySignReq = server.takeRequest(2, TimeUnit.SECONDS);
+        assertNotNull(mySignReq);
+        assertEquals("POST", mySignReq.getMethod());
+        assertEquals("/mySign/u1", mySignReq.getPath());
+        assertTrue(mySignReq.getBody().readUtf8().contains("zh-Hant"));
+
+        client.signsList("en");
+        RecordedRequest signsReq = server.takeRequest(2, TimeUnit.SECONDS);
+        assertNotNull(signsReq);
+        assertEquals("GET", signsReq.getMethod());
+        assertEquals("/signs?lang=en", signsReq.getPath());
+    }
+
+    @Test
+    void qimen_sendsCorrectPathAndParsesResponse() throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody("{\"code\":0,\"msg\":\"ok\",\"data\":{\"input_time\":\"1999-10-17 21:00:00\",\"lunar\":\"己卯\",\"pai_fa\":{\"digest\":\"d\",\"qiju_type\":\"时家\",\"pai_method\":\"转盘\"},\"type\":\"shijia\",\"pai_method\":\"zhuanpan\",\"jie_qi_prev\":{\"name\":\"寒露\",\"jiaojie_local\":\"1999-10-08\"},\"jie_qi_next\":{\"name\":\"霜降\",\"jiaojie_local\":\"1999-10-24\"},\"year_pillar\":{\"label\":\"己卯年\",\"kong_wang\":\"申酉\"},\"month_pillar\":{\"label\":\"甲戌月\",\"kong_wang\":\"申酉\"},\"day_pillar\":{\"label\":\"乙酉日\",\"kong_wang\":\"午未\"},\"year_gan_zhi\":\"己卯\",\"month_gan_zhi\":\"甲戌\",\"day_gan_zhi\":\"乙酉\",\"pan_variant\":\"shijia_chaibu\",\"yin_yang\":\"yang\",\"ju_display\":\"阳遁一局\",\"solar_term\":\"寒露\",\"special_patterns\":[],\"jiu_gong\":{}},\"exe_time\":0.1}")
+                .addHeader("Content-Type", "application/json"));
+
+        QimenQry qry = new QimenQry();
+        qry.setQryDt("1999-10-17 21:00:00");
+        qry.setType("shijia");
+        qry.setPaiMethod("zhuanpan");
+        qry.setJuMethod("chaibu");
+
+        ApiResp<QimenResultVo> resp = client.qimen(qry);
+
+        RecordedRequest request = server.takeRequest(2, TimeUnit.SECONDS);
+        assertNotNull(request);
+        assertEquals("POST", request.getMethod());
+        assertEquals("/qimen", request.getPath());
+        assertEquals(0, resp.getCode());
+        assertNotNull(resp.getData());
+        assertEquals("阳遁一局", resp.getData().getJuDisplay());
+        assertEquals("shijia", resp.getData().getType());
     }
 }

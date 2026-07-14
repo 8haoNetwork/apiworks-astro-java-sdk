@@ -1,6 +1,5 @@
 package com.apiworks.astro.model.responses.scope;
 
-import com.apiworks.astro.model.responses.astro.CorpusVo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -31,7 +30,7 @@ public class ScopeRespVo {
 
     /** 运势语料。 */
     @JsonProperty("corpus")
-    private List<CorpusVo> corpus;
+    private List<ScopeInterpretVo> corpus;
 
     public ScopeTotalVo getScopeTotal() { return scopeTotal; }
     public void setScopeTotal(ScopeTotalVo scopeTotal) { this.scopeTotal = scopeTotal; }
@@ -43,6 +42,6 @@ public class ScopeRespVo {
     public void setSignInfo(SignScopeVo signInfo) { this.signInfo = signInfo; }
     public CommentVo getComment() { return comment; }
     public void setComment(CommentVo comment) { this.comment = comment; }
-    public List<CorpusVo> getCorpus() { return corpus; }
-    public void setCorpus(List<CorpusVo> corpus) { this.corpus = corpus; }
+    public List<ScopeInterpretVo> getCorpus() { return corpus; }
+    public void setCorpus(List<ScopeInterpretVo> corpus) { this.corpus = corpus; }
 }
