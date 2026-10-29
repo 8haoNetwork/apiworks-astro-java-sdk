@@ -1,6 +1,6 @@
 ## apiworks-astro-java-sdk
 
-Java SDK for ApiWorks 星盘 API（[www.apiworks.com](https://www.apiworks.com)，默认网关 `https://cloud.apiworks.com/open/astro`）。支持星盘、八字、紫微、奇门遁甲、大六壬、星宿、运势、AI 报告等能力（SDK **v1.1.0**）。
+Java SDK for ApiWorks 星盘 API（[www.apiworks.com](https://www.apiworks.com)，默认网关 `https://cloud.apiworks.com/open/astro`）。支持星盘、八字、紫微、七政四余、奇门遁甲、大六壬、星宿、运势、AI 报告等能力（SDK **v1.2.0**）。
 
 ### 功能概览
 
@@ -10,6 +10,7 @@ Java SDK for ApiWorks 星盘 API（[www.apiworks.com](https://www.apiworks.com)�
 - **运势 (Scope)**：日/周/月/年运势
 - **星象事件 (Event)**：行运星象事件
 - **紫微斗数 (Ziwei)**：本命盘、排盘、含解读的排盘
+- **七政四余 (Zhengyu)**：本命盘、行运排盘、比较盘、神煞目录
 - **星宿 (Naks)**：27 星宿关系
 - **八字 (Bazi)**：命盘、流盘、合盘、总结
 - **三式 (Sanshi)**：奇门遁甲、大六壬 / 金口诀
@@ -26,7 +27,7 @@ Java SDK for ApiWorks 星盘 API（[www.apiworks.com](https://www.apiworks.com)�
 <dependency>
     <groupId>com.apiworks.astro</groupId>
     <artifactId>apiworks-astro-java-sdk</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -58,6 +59,40 @@ public class Demo {
             System.out.println(data);
         }
     }
+}
+```
+
+### 七政四余
+
+```java
+import com.apiworks.astro.AstroCloudClient;
+import com.apiworks.astro.model.requests.qizheng.QizhengNatalQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengQry;
+import com.apiworks.astro.model.responses.qizheng.QizhengChartVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengNatalVo;
+
+AstroCloudClient client = new AstroCloudClient("your-app-id", "your-app-key");
+
+QizhengNatalQry natal = new QizhengNatalQry();
+natal.setBirthDt("1990-08-14 12:00:00");
+natal.setTz(8);
+natal.setGender("male");
+natal.setLang("zh-Hans");
+var natalResp = client.zhengyuNatal(natal);
+if (natalResp.getCode() == 0 && natalResp.getData() != null) {
+    QizhengNatalVo data = natalResp.getData();
+    System.out.println(data.getStars().size());
+}
+
+QizhengQry chart = new QizhengQry();
+chart.setBirthDt("1990-08-14 12:00:00");
+chart.setTz(8);
+chart.setGender("male");
+chart.setTargetDt("2026-10-29 12:00:00");
+var chartResp = client.zhengyuChart(chart);
+if (chartResp.getCode() == 0 && chartResp.getData() != null) {
+    QizhengChartVo data = chartResp.getData();
+    System.out.println(data.getTargetDt());
 }
 ```
 

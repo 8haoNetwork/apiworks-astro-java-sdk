@@ -10,6 +10,9 @@ import com.apiworks.astro.model.requests.report.TogetherCreateQry;
 import com.apiworks.astro.model.requests.report.WealthCreateQry;
 import com.apiworks.astro.model.requests.report.WeeklyScopeCreateQry;
 import com.apiworks.astro.model.requests.report.YearlyScopeCreateQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengComparisonQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengNatalQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengQry;
 import com.apiworks.astro.model.requests.sanshi.LiurenQry;
 import com.apiworks.astro.model.requests.sanshi.QimenQry;
 import com.apiworks.astro.model.requests.scope.ScopeQryReq;
@@ -28,6 +31,10 @@ import com.apiworks.astro.model.responses.bazi.BaziSummaryVO;
 import com.apiworks.astro.model.responses.event.AstroEventVo;
 import com.apiworks.astro.model.responses.naks.NaksVo;
 import com.apiworks.astro.model.responses.report.AstroReportVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengChartVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengComparisonVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengNatalVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengSpiritStarCatalogVo;
 import com.apiworks.astro.model.responses.sanshi.LiurenResultVo;
 import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
 import com.apiworks.astro.model.responses.scope.ScopeRespVo;
@@ -398,6 +405,29 @@ public class AsyncAstroCloudClient implements AutoCloseable {
 
     public CompletableFuture<ApiResp<LiurenResultVo>> liuren(LiurenQry qry) {
         return executeJsonAsync("POST", "/liuren", qry, new TypeReference<ApiResp<LiurenResultVo>>() {});
+    }
+
+    // ----- Qizheng (七政四余 / 政余) -----
+    public CompletableFuture<ApiResp<QizhengNatalVo>> zhengyuNatal(QizhengNatalQry qry) {
+        return executeJsonAsync("POST", "/zhengyu/natal", qry, new TypeReference<ApiResp<QizhengNatalVo>>() {});
+    }
+
+    public CompletableFuture<ApiResp<QizhengChartVo>> zhengyuChart(QizhengQry qry) {
+        return executeJsonAsync("POST", "/zhengyu/chart", qry, new TypeReference<ApiResp<QizhengChartVo>>() {});
+    }
+
+    public CompletableFuture<ApiResp<QizhengComparisonVo>> zhengyuComparison(QizhengComparisonQry qry) {
+        return executeJsonAsync("POST", "/zhengyu/comparison", qry,
+                new TypeReference<ApiResp<QizhengComparisonVo>>() {});
+    }
+
+    public CompletableFuture<ApiResp<QizhengSpiritStarCatalogVo>> zhengyuSpiritStarsCatalog() {
+        return zhengyuSpiritStarsCatalog(null);
+    }
+
+    public CompletableFuture<ApiResp<QizhengSpiritStarCatalogVo>> zhengyuSpiritStarsCatalog(String lang) {
+        return executeJsonAsync("GET", withLangQuery("/zhengyu/spirit-stars/catalog", lang), null,
+                new TypeReference<ApiResp<QizhengSpiritStarCatalogVo>>() {});
     }
 
     // ----- Report -----

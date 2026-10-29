@@ -10,6 +10,9 @@ import com.apiworks.astro.model.requests.report.TogetherCreateQry;
 import com.apiworks.astro.model.requests.report.WealthCreateQry;
 import com.apiworks.astro.model.requests.report.WeeklyScopeCreateQry;
 import com.apiworks.astro.model.requests.report.YearlyScopeCreateQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengComparisonQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengNatalQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengQry;
 import com.apiworks.astro.model.requests.sanshi.LiurenQry;
 import com.apiworks.astro.model.requests.sanshi.QimenQry;
 import com.apiworks.astro.model.requests.scope.ScopeQryReq;
@@ -28,6 +31,10 @@ import com.apiworks.astro.model.responses.bazi.BaziSummaryVO;
 import com.apiworks.astro.model.responses.event.AstroEventVo;
 import com.apiworks.astro.model.responses.naks.NaksVo;
 import com.apiworks.astro.model.responses.report.AstroReportVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengChartVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengComparisonVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengNatalVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengSpiritStarCatalogVo;
 import com.apiworks.astro.model.responses.sanshi.LiurenResultVo;
 import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
 import com.apiworks.astro.model.responses.scope.ScopeRespVo;
@@ -69,6 +76,7 @@ import java.util.concurrent.TimeUnit;
  *     <li>ziwei：紫微命盘/运限/解读 {@code /ziwei/natal|chart|detail}</li>
  *     <li>naks：星宿关系 {@code /naks/relations}</li>
  *     <li>sanshi：奇门遁甲 {@code /qimen}、大六壬/金口诀 {@code /liuren}</li>
+ *     <li>zhengyu：七政四余 {@code /zhengyu/natal|chart|comparison|spirit-stars/catalog}</li>
  *     <li>report：桃花/周运/年运/合盘/财运报告 {@code /report/*}</li>
  *     <li>多语言：请求体或查询参数 {@code lang}（{@code zh-Hans}/{@code zh-Hant}/{@code en}）</li>
  * </ul>
@@ -743,6 +751,69 @@ public class AstroCloudClient implements AutoCloseable {
                 "/liuren",
                 qry,
                 new TypeReference<ApiResp<LiurenResultVo>>() {
+                }
+        );
+    }
+
+    // ----- Qizheng (七政四余 / 政余) -----
+
+    /**
+     * POST {@code /zhengyu/natal} - 七政四余本命盘。
+     */
+    public ApiResp<QizhengNatalVo> zhengyuNatal(QizhengNatalQry qry) throws IOException {
+        return executeJson(
+                "POST",
+                "/zhengyu/natal",
+                qry,
+                new TypeReference<ApiResp<QizhengNatalVo>>() {
+                }
+        );
+    }
+
+    /**
+     * POST {@code /zhengyu/chart} - 七政四余排盘（本命+行运）。
+     */
+    public ApiResp<QizhengChartVo> zhengyuChart(QizhengQry qry) throws IOException {
+        return executeJson(
+                "POST",
+                "/zhengyu/chart",
+                qry,
+                new TypeReference<ApiResp<QizhengChartVo>>() {
+                }
+        );
+    }
+
+    /**
+     * POST {@code /zhengyu/comparison} - 七政四余比较盘。
+     */
+    public ApiResp<QizhengComparisonVo> zhengyuComparison(QizhengComparisonQry qry) throws IOException {
+        return executeJson(
+                "POST",
+                "/zhengyu/comparison",
+                qry,
+                new TypeReference<ApiResp<QizhengComparisonVo>>() {
+                }
+        );
+    }
+
+    /**
+     * GET {@code /zhengyu/spirit-stars/catalog} - 七政四余神煞目录。
+     */
+    public ApiResp<QizhengSpiritStarCatalogVo> zhengyuSpiritStarsCatalog() throws IOException {
+        return zhengyuSpiritStarsCatalog(null);
+    }
+
+    /**
+     * GET {@code /zhengyu/spirit-stars/catalog} - 七政四余神煞目录。
+     *
+     * @param lang 可选语言：zh-Hans | zh-Hant
+     */
+    public ApiResp<QizhengSpiritStarCatalogVo> zhengyuSpiritStarsCatalog(String lang) throws IOException {
+        return executeJson(
+                "GET",
+                withLangQuery("/zhengyu/spirit-stars/catalog", lang),
+                null,
+                new TypeReference<ApiResp<QizhengSpiritStarCatalogVo>>() {
                 }
         );
     }

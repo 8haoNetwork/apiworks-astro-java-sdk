@@ -3,9 +3,11 @@ package com.apiworks.astro;
 import com.apiworks.astro.model.common.ApiResp;
 import com.apiworks.astro.model.common.TimeAndLocation;
 import com.apiworks.astro.model.requests.chart.SinglePointQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengNatalQry;
 import com.apiworks.astro.model.requests.sanshi.QimenQry;
 import com.apiworks.astro.model.requests.sign.SignQry;
 import com.apiworks.astro.model.responses.astro.AstroDataVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengNatalVo;
 import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
 import com.apiworks.astro.model.responses.sign.MySignRespVo;
 import okhttp3.mockwebserver.MockResponse;
@@ -163,5 +165,28 @@ class AstroCloudClientTest {
         assertNotNull(resp.getData());
         assertEquals("阳遁一局", resp.getData().getJuDisplay());
         assertEquals("shijia", resp.getData().getType());
+    }
+
+    @Test
+    void zhengyuNatal_sendsCorrectPathAndParsesResponse() throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody("{\"code\":0,\"msg\":\"ok\",\"data\":{\"gender\":\"male\",\"birth_dt\":\"1990-08-14 12:00:00\",\"solar_dt\":\"1990-08-14 12:00:00\",\"basic\":{\"pillars\":{\"year\":{\"stem\":\"geng\",\"branch\":\"wu\",\"gan_zhi\":\"庚午\"},\"month\":{\"stem\":\"jia\",\"branch\":\"shen\",\"gan_zhi\":\"甲申\"},\"day\":{\"stem\":\"bing\",\"branch\":\"yin\",\"gan_zhi\":\"丙寅\"},\"hour\":{\"stem\":\"yi\",\"branch\":\"wei\",\"gan_zhi\":\"乙未\"}},\"is_day\":true,\"grace\":{\"degree\":{\"self_wx\":\"fire\",\"grace\":\"wood\",\"useful\":\"earth\",\"foe\":\"water\",\"hardship\":\"metal\"},\"palace\":{\"self_wx\":\"fire\",\"grace\":\"wood\",\"useful\":\"earth\",\"foe\":\"water\",\"hardship\":\"metal\"}},\"shen\":{\"palace_degree\":10.0,\"xiu\":\"jiao\",\"xiu_degree\":1.0,\"earthly_branch\":\"zi\"},\"tong_xian_span\":{\"years\":1,\"months\":0,\"days\":0,\"exit_date\":\"1991-08-14\"}},\"ming\":{\"palace_degree\":10.0,\"xiu\":\"jiao\",\"xiu_degree\":1.0,\"lord\":\"sun\"},\"stars\":[],\"palaces\":[]},\"exe_time\":0.1}")
+                .addHeader("Content-Type", "application/json"));
+
+        QizhengNatalQry qry = new QizhengNatalQry();
+        qry.setBirthDt("1990-08-14 12:00:00");
+        qry.setGender("male");
+
+        ApiResp<QizhengNatalVo> resp = client.zhengyuNatal(qry);
+
+        RecordedRequest request = server.takeRequest(2, TimeUnit.SECONDS);
+        assertNotNull(request);
+        assertEquals("POST", request.getMethod());
+        assertEquals("/zhengyu/natal", request.getPath());
+        assertTrue(request.getBody().readUtf8().contains("birth_dt"));
+        assertEquals(0, resp.getCode());
+        assertNotNull(resp.getData());
+        assertEquals("male", resp.getData().getGender());
+        assertEquals("1990-08-14 12:00:00", resp.getData().getBirthDt());
     }
 }

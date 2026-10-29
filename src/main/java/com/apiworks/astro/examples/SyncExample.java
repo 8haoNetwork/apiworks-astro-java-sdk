@@ -7,6 +7,10 @@ import com.apiworks.astro.model.requests.bazi.BaziNatalQry;
 import com.apiworks.astro.model.requests.naks.NaksBirthInfo;
 import com.apiworks.astro.model.requests.naks.NaksQry;
 import com.apiworks.astro.model.requests.report.RomanticCreateQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengComparisonQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengNatalQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengPersonQry;
+import com.apiworks.astro.model.requests.qizheng.QizhengQry;
 import com.apiworks.astro.model.requests.sanshi.LiurenQry;
 import com.apiworks.astro.model.requests.sanshi.QimenQry;
 import com.apiworks.astro.model.requests.scope.ScopeQryReq;
@@ -16,6 +20,9 @@ import com.apiworks.astro.model.requests.chart.SinglePointQry;
 import com.apiworks.astro.model.responses.astro.AstroDataVo;
 import com.apiworks.astro.model.responses.bazi.BaziNatalVO;
 import com.apiworks.astro.model.responses.naks.NaksVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengChartVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengComparisonVo;
+import com.apiworks.astro.model.responses.qizheng.QizhengNatalVo;
 import com.apiworks.astro.model.responses.report.AstroReportVo;
 import com.apiworks.astro.model.responses.sanshi.LiurenResultVo;
 import com.apiworks.astro.model.responses.sanshi.QimenResultVo;
@@ -59,11 +66,16 @@ public class SyncExample {
             // 6. 星宿关系
             exampleNaksRelations(client);
 
-            // 7. 奇门遁甲 / 大六壬
+            // 7. 七政四余
+            exampleZhengyuNatal(client);
+            exampleZhengyuChart(client);
+            exampleZhengyuComparison(client);
+
+            // 8. 奇门遁甲 / 大六壬
             exampleQimen(client);
             exampleLiuren(client);
 
-            // 8. 桃花报告（创建任务，拿到 serialNo 后可 reportGet / reportGetHtml 拉取）
+            // 9. 桃花报告（创建任务，拿到 serialNo 后可 reportGet / reportGetHtml 拉取）
             exampleReportRomantic(client);
         }
     }
@@ -181,6 +193,71 @@ public class SyncExample {
             }
         } catch (Exception e) {
             System.err.println("naksRelations error: " + e.getMessage());
+        }
+    }
+
+    static void exampleZhengyuNatal(AstroCloudClient client) {
+        System.out.println("--- 七政四余本命盘 ---");
+        QizhengNatalQry qry = new QizhengNatalQry();
+        qry.setBirthDt("1990-08-14 12:00:00");
+        qry.setTz(8);
+        qry.setGender("male");
+        try {
+            ApiResp<QizhengNatalVo> resp = client.zhengyuNatal(qry);
+            if (resp.getCode() == 0 && resp.getData() != null) {
+                QizhengNatalVo data = resp.getData();
+                System.out.println("星曜数: " + (data.getStars() != null ? data.getStars().size() : 0)
+                        + ", 宫位数: " + (data.getPalaces() != null ? data.getPalaces().size() : 0));
+            } else {
+                System.out.println("code=" + resp.getCode() + ", msg=" + resp.getMsg());
+            }
+        } catch (Exception e) {
+            System.err.println("zhengyuNatal error: " + e.getMessage());
+        }
+    }
+
+    static void exampleZhengyuChart(AstroCloudClient client) {
+        System.out.println("--- 七政四余排盘 ---");
+        QizhengQry qry = new QizhengQry();
+        qry.setBirthDt("1990-08-14 12:00:00");
+        qry.setTz(8);
+        qry.setGender("male");
+        qry.setTargetDt("2026-10-29 12:00:00");
+        try {
+            ApiResp<QizhengChartVo> resp = client.zhengyuChart(qry);
+            if (resp.getCode() == 0 && resp.getData() != null) {
+                QizhengChartVo data = resp.getData();
+                System.out.println("target: " + data.getTargetDt()
+                        + ", 流行星数: " + (data.getFlowStars() != null ? data.getFlowStars().size() : 0));
+            } else {
+                System.out.println("code=" + resp.getCode() + ", msg=" + resp.getMsg());
+            }
+        } catch (Exception e) {
+            System.err.println("zhengyuChart error: " + e.getMessage());
+        }
+    }
+
+    static void exampleZhengyuComparison(AstroCloudClient client) {
+        System.out.println("--- 七政四余比较盘 ---");
+        QizhengPersonQry a = new QizhengPersonQry();
+        a.setBirthDt("1990-08-14 12:00:00");
+        a.setTz(8);
+        a.setGender("male");
+        QizhengPersonQry b = new QizhengPersonQry();
+        b.setBirthDt("1992-03-20 08:00:00");
+        b.setTz(8);
+        b.setGender("female");
+        QizhengComparisonQry qry = new QizhengComparisonQry(List.of(a, b));
+        try {
+            ApiResp<QizhengComparisonVo> resp = client.zhengyuComparison(qry);
+            if (resp.getCode() == 0 && resp.getData() != null) {
+                QizhengComparisonVo data = resp.getData();
+                System.out.println("A: " + data.getBirthDt() + ", B: " + data.getOtherBirthDt());
+            } else {
+                System.out.println("code=" + resp.getCode() + ", msg=" + resp.getMsg());
+            }
+        } catch (Exception e) {
+            System.err.println("zhengyuComparison error: " + e.getMessage());
         }
     }
 
